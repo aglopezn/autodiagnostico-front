@@ -1,0 +1,53 @@
+body {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* CARDS */
+.card-icon {
+    width: 40%;
+    margin: auto;
+    padding: 1rem;
+}
+
+.round-3 {
+    border-radius: 0.75rem;
+}
+
+
+/* FOOTER */
+.footer {
+    /* position: relative; */
+    /* bottom: 0; */
+    width: 100%;
+    height: 60px;
+}
+
+/* FORMS */
+.form-control_underline {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+}
+
+.form-control:valid {
+    border-bottom-color: #28a745;
+}
+
+.form-label_animate {
+    transform: translate(12px, -150%);
+    transition: 0.5s ease;
+}
+
+.form-control:focus ~ .form-label_animate {
+    transform: translate(12px,-225%);
+}
+
+.form-control:valid ~ .form-label_animate {
+    transform: translate(12px,-225%);
+}
+
+/* select.form-control:first-child {
+    color: transparent;
+} */
