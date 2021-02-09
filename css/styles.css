@@ -1,14 +1,34 @@
 body {
     padding: 0;
     margin: 0;
+    font-family: 'Poppins', sans-serif;
     box-sizing: border-box;
+}
+
+/* colors */
+.bg-gradient-primary {
+    background: linear-gradient(to right top, rgba(104,150,246,0.47),rgba(215,241,244,1));
+    /* background: linear-gradient(to right top,rgba(149,185,203,1),rgba(204,250,254,1)); */
+}
+
+.shadow {
+    box-shadow: .3rem .3rem 6rem rgba(0,0,0,.15);
+}
+
+.bg-dark-38 {
+    background-color: rgba(4, 3, 39, 0.38);
+}
+/* text */
+.main-title {
+    font-size: 3rem;
+    text-transform: uppercase;
+    font-family: 'Montserrat', sans-serif;
 }
 
 /* CARDS */
 .card-icon {
-    width: 40%;
-    margin: auto;
-    padding: 1rem;
+    width: 20%;
+    margin: 1rem auto 0;
 }
 
 .round-3 {
@@ -21,7 +41,7 @@ body {
     /* position: relative; */
     /* bottom: 0; */
     width: 100%;
-    height: 60px;
+    /* height: 60px; */
 }
 
 /* FORMS */
@@ -48,6 +68,16 @@ body {
     transform: translate(12px,-225%);
 }
 
-/* select.form-control:first-child {
-    color: transparent;
-} */
+/* MEDIA QUERIES */
+@media (max-width: 767px){
+    :root {
+        font-size: 12px;
+    }
+
+}
+
+@media (min-width: 850px) {
+    .w-md-50 {
+        width: 50%;
+    }
+}
