@@ -2,7 +2,7 @@ $(document).ready(function(){
 
   // Consultar los tipos de documento
   jQuery.ajax({
-    url: "http://192.168.1.124:8080/autodiagnostico-rest-services/documentservice/getdocuments",
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/documentservice/getdocuments`,
     crossDomain: true
   })
   .done(function(data){
@@ -24,8 +24,8 @@ $(document).ready(function(){
     let docType = $('#tipo-documento').val();
     let documentNumber = $('#numero-documento').val();
     let name = $('#nombre').val();
-    let existUserURL = `http://192.168.1.124:8080/autodiagnostico-rest-services/users/existuser/${documentNumber}`;
-    let addUserURL = 'http://192.168.1.124:8080/autodiagnostico-rest-services/users/adduser';
+    let existUserURL = `http://${_DOMAIN}/autodiagnostico-rest-services/users/existuser/${documentNumber}`;
+    let addUserURL = `http://${_DOMAIN}/autodiagnostico-rest-services/users/adduser`;
     // Validar si el usuario existe
     jQuery.ajax({
       url: existUserURL,

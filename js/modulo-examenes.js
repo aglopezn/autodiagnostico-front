@@ -1,7 +1,7 @@
 $(document).ready(function(){
   // Cargar el id del usuario
   jQuery.ajax({
-    url: `http://192.168.1.124:8080/autodiagnostico-rest-services/users/getuser/${sessionStorage.getItem('numeroDocumento')}`,
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/users/getuser/${sessionStorage.getItem('numeroDocumento')}`,
     crossDomain: true,
     method: 'GET'
   })
@@ -12,7 +12,7 @@ $(document).ready(function(){
 
   // Determinar el estado de los examenes
   jQuery.ajax({
-    url: `http://192.168.1.124:8080/autodiagnostico-rest-services/formstservice/getformst/${sessionStorage.getItem('idUsuario')}`,
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/getformst/${sessionStorage.getItem('idUsuario')}`,
     crossDomain: true,
     method: 'GET'
   })

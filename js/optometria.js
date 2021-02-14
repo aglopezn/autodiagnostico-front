@@ -1,7 +1,8 @@
 $(document).ready(function(){
+  // var _DOMAIN = '192.168.1.143:8080';
   // Consultar las preguntas de optometria
   jQuery.ajax({
-    url: 'http://192.168.1.124:8080/autodiagnostico-rest-services/questionservice/getquestion/1'
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/questionservice/getquestion/1`
   })
   .done(function(data){
     if(data.response == 200){
@@ -22,37 +23,96 @@ $(document).ready(function(){
 
   // Enviar las respuestas
   $('#form-optometria').on("submit", function(e){
-    e.preventDefault();
     let questions = $('#form-optometria input');
-    let data = [];
-    
-    // Llenar el array data
-    for(let i=0; i<questions.length; i++){
-      let jsonTemp = {
-        user: {
-          idUser: 1
-        },
-        question: {
-          idQuestion: parseInt(questions[i].id,10)
-        },
-        answerDesc: questions[i].value
-      }
-      data[i] = jsonTemp;
-    }
-
-    console.log(JSON.stringify(data));
+    let body = bodyRequestAnswers(questions);
+    console.log(JSON.stringify(body));
+    // Hacer la peticion ajax
     jQuery.ajax({
-      url: "http://192.168.1.124:8080/autodiagnostico-rest-services/answersservice/addexam",
+      url: `http://${_DOMAIN}/autodiagnostico-rest-services/answersservice/addexam`,
       contentType: "application/json",
       method: "POST",
       crossOrigin: true,
-      data: JSON.stringify(data)
+      data: JSON.stringify(body)
     })
     .done(function(response){
       console.log(response);
+      let error = false;
+      response.data.forEach(function(resAnswer){
+        if(resAnswer.response == 500){
+          error = true;
+        }
+      });
+      if(!error){
+        setFormState('PENDIENTE_CERTIFICADO');
+      }
     })
 
     return false;
   });
 
 });
+
+// Funcion para armar el json array con las respuestas del formulario
+function bodyRequestAnswers(inputQuestions){
+  let jsonArray = [];
+  for(let i=0; i<inputQuestions.length; i++){
+    let jsonTemp = {
+      user: {
+        idUser: 1
+      },
+      question: {
+        idQuestion: parseInt(inputQuestions[i].id,10)
+      },
+      answerDesc: inputQuestions[i].value
+    }
+    jsonArray[i] = jsonTemp;
+  }
+  return jsonArray
+}
+
+// Funcion para crear el json con el estado del formulario
+function bodyRequestFormState(estado){
+  let json = {
+    state: estado,
+    user: {
+      idUser: sessionStorage.getItem('idUsuario')
+    },
+    field: {
+      idField: 1
+    }
+  };
+  return json;
+}
+
+// Funcion que realiza la peticion para crear el estado del formulario
+
+function setFormState(estado){
+  let body = bodyRequestFormState(estado);
+  console.log(JSON.stringify(body));
+  jQuery.ajax({
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/setstate`,
+    contentType: "application/json",
+    method: "POST",
+    crossOrigin: true,
+    data: JSON.stringify(body)
+  })
+  .done(function(response){
+    console.log(response);
+    if(response.response == 400){
+      updateFormState(estado);
+    }
+  });
+}
+// Funcion que realiza la peticion para actualizar el estado del formulario
+
+function updateFormState(estado){
+  jQuery.ajax({
+    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/1`,
+    contentType: "application/json",
+    method: "PUT",
+    crossOrigin: true,
+  })
+  .done(function(response){
+    console.log(response);
+  });
+}
