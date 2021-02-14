@@ -51,8 +51,8 @@ $(document).ready(function(){
               }
             })
           })
-          .done(function(data) {
-            console.log(data);
+          .done(function(response) {
+            console.log(response);
           });
         } else {
           console.log("User already exists!")
@@ -70,43 +70,3 @@ $(document).ready(function(){
     return true;
   });
 });
-
-// Funcion que verifica que el usuario ingresado exista
-function existUser(documentNumber){
-  let endpoint = `http://192.168.1.124:8080/autodiagnostico-rest-services/users/existuser/${documentNumber}`;
-  let exist = false;
-  jQuery.ajax({
-    url: endpoint,
-  })
-  .done(function(data){
-    if(data.response==200){
-      return data.exist;
-    }
-  });
-}
-
-// Funcion que agrega un usuario
-function addUser() {
-  let idTipoDoc = $('#tipo-documento').val();
-  let numDoc = $('#numero-documento').val();
-  let nombre = $('#nombre').val();
-  console.log(parseInt(idTipoDoc, 10));
-  jQuery.ajax({
-    url: "http://192.168.1.124:8080/autodiagnostico-rest-services/users/adduser",
-    contentType: "application/json",
-    method: "POST",
-    data: {
-      "name": nombre,
-      "documentNumber": numDoc,
-      "document": {
-        "idDocument": parseInt(idTipoDoc, 10)
-      },
-      "userType": {
-        "idUserType": 2
-      }
-    }
-  })
-  .done(function(data) {
-    console.log(data);
-  });
-}
