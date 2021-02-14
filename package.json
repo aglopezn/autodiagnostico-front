@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx http-server -p 8081"
+    "start": "npx http-server -p 8081 --cors"
   },
   "author": "",
   "license": "ISC"
