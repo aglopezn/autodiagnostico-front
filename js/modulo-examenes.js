@@ -1,7 +1,7 @@
 $(document).ready(function(){
   // Cargar el id del usuario
   jQuery.ajax({
-    url: `http://${_DOMAIN}/autodiagnostico-rest-services/users/getuser/${sessionStorage.getItem('numeroDocumento')}`,
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/users/getuser/${sessionStorage.getItem('numeroDocumento')}`,
     crossDomain: true,
     method: 'GET'
   })
@@ -12,7 +12,7 @@ $(document).ready(function(){
 
   // Determinar el estado de los examenes
   jQuery.ajax({
-    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/getformst/${sessionStorage.getItem('idUsuario')}`,
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/getformst/${sessionStorage.getItem('idUsuario')}`,
     crossDomain: true,
     method: 'GET'
   })

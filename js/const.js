@@ -1,1 +1,2 @@
-var _DOMAIN = '192.168.1.143:8080';
+var _DOMAIN_SERVICES = '192.168.1.143:8080';
+var _LOCAL_DOMAIN = 'localhost:8081';

@@ -1,8 +1,6 @@
 $(document).ready(function(){
-  // var _DOMAIN = '192.168.1.143:8080';
-  // Consultar las preguntas de optometria
   jQuery.ajax({
-    url: `http://${_DOMAIN}/autodiagnostico-rest-services/questionservice/getquestion/1`
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/questionservice/getquestion/1`
   })
   .done(function(data){
     if(data.response == 200){
@@ -28,7 +26,7 @@ $(document).ready(function(){
     console.log(JSON.stringify(body));
     // Hacer la peticion ajax
     jQuery.ajax({
-      url: `http://${_DOMAIN}/autodiagnostico-rest-services/answersservice/addexam`,
+      url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/answersservice/addexam`,
       contentType: "application/json",
       method: "POST",
       crossOrigin: true,
@@ -90,7 +88,7 @@ function setFormState(estado){
   let body = bodyRequestFormState(estado);
   console.log(JSON.stringify(body));
   jQuery.ajax({
-    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/setstate`,
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/setstate`,
     contentType: "application/json",
     method: "POST",
     crossOrigin: true,
@@ -107,7 +105,7 @@ function setFormState(estado){
 
 function updateFormState(estado){
   jQuery.ajax({
-    url: `http://${_DOMAIN}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/1`,
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/1`,
     contentType: "application/json",
     method: "PUT",
     crossOrigin: true,
