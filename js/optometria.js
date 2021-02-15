@@ -18,34 +18,25 @@ $(document).ready(function(){
     }
   });
 
-
   // Enviar las respuestas
   $('#form-optometria').on("submit", function(e){
-    let questions = $('#form-optometria input');
-    let body = bodyRequestAnswers(questions);
-    console.log(JSON.stringify(body));
-    // Hacer la peticion ajax
-    jQuery.ajax({
-      url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/answersservice/addexam`,
-      contentType: "application/json",
-      method: "POST",
-      crossOrigin: true,
-      data: JSON.stringify(body)
+    e.preventDefault();
+    swal({
+      title: 'Vamos a validar tu informacion.',
+      text: '',
+      icon: 'info',
+      button:  {
+        text: "Aceptar",
+        closeModal: false,
+      },
     })
-    .done(function(response){
-      console.log(response);
-      let error = false;
-      response.data.forEach(function(resAnswer){
-        if(resAnswer.response == 500){
-          error = true;
-        }
-      });
-      if(!error){
-        setFormState('PENDIENTE_CERTIFICADO');
-      }
-    })
-
-    return false;
+    .then(addExamAnswers)
+    .then(validateAnswers)
+    .then(setFormState)
+    .then(validateUpdate)
+    .then(updateFormState)
+    .then(result)
+    .catch(serviceError);
   });
 
 });
@@ -82,35 +73,124 @@ function bodyRequestFormState(estado){
   return json;
 }
 
-// Funcion que realiza la peticion para crear el estado del formulario
+// Agregar las respuestas del examen
+function addExamAnswers(){
+  let questions = $('#form-optometria input');
+  let body = bodyRequestAnswers(questions);
+  console.log(JSON.stringify(body));
+  return jQuery.ajax({
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/answersservice/addexam`,
+    contentType: "application/json",
+    method: "POST",
+    crossOrigin: true,
+    data: JSON.stringify(body)
+  })
+}
 
+// Valida que las respuestas se hayan almacenado correctamente
+function validateAnswers(response){
+    console.log(response);
+    response.data.forEach(function(resAnswer){
+      if(resAnswer.response == 500){
+        throw new Error('Ocurrio un error al agregar las respuestas.');
+      }
+    });
+    return 'PENDIENTE_CERTIFICADO';
+}
+
+// Funcion que realiza la peticion para crear el estado del formulario
 function setFormState(estado){
   let body = bodyRequestFormState(estado);
   console.log(JSON.stringify(body));
-  jQuery.ajax({
+  return jQuery.ajax({
     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/setstate`,
     contentType: "application/json",
     method: "POST",
     crossOrigin: true,
     data: JSON.stringify(body)
   })
-  .done(function(response){
-    console.log(response);
-    if(response.response == 400){
-      updateFormState(estado);
-    }
-  });
+}
+
+// Funcion para validar si se debe actualizar el estado del formulario
+function validateUpdate(response){
+  console.log(response);
+  if(response.response == 400){
+    return 'PENDIENTE_CERTIFICADO';
+  } 
+  if(response.response == 200){
+    return '200';
+  }
+
 }
 // Funcion que realiza la peticion para actualizar el estado del formulario
-
 function updateFormState(estado){
-  jQuery.ajax({
+  console.log(estado);
+  if(estado == '200'){
+    return 'Completado con exito';
+  }
+  return jQuery.ajax({
     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/1`,
     contentType: "application/json",
     method: "PUT",
     crossOrigin: true,
   })
-  .done(function(response){
-    console.log(response);
-  });
+}
+
+// Imprime en pantalla un mensaje de exito
+function result(data){
+  console.log(data);
+  swal({
+    title: 'Informacion almacenada con exito.',
+    icon: 'success',
+    button: 'Descargar certificado'
+    //buttons: false,
+    //timer: 2000
+  })
+  .then(function(){
+    downloadPDF();
+    window.location.href = `http://${_LOCAL_DOMAIN}/modulo-examenes.html`;
+  })
+}
+
+// En caso de error imprime un error
+function serviceError(data, textStatus, jqXHR){
+  swal({
+    title: 'Ocurrio un error con los servicios.',
+    text: 'Intente de nuevo mas tarde.',
+    icon: 'error',
+    button: 'Aceptar'
+  })
+  .then(function(){
+    window.location.href = `http://${_LOCAL_DOMAIN}/modulo-examenes.html`;
+  })
+}
+
+// function downloadPDF(){
+//   jQuery.ajax({
+//     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/certificateservice/generatecert`,
+//     contentType: 'application/json',
+//     method: 'POST',
+//     crossDomain: true,
+//     body: JSON.stringify({
+//       "user": {
+//         "idUser": 1,
+//         "documentNumber": "1013676183"
+//       },
+//       "field": {
+//         "idField": 1
+//       }
+//     })
+//   })
+//   .done(function(byteArray){
+//     let blob = new Blob([byteArray], {type: 'application/octet-binary'});
+//     console.log(blob.size);
+//     let link = document.createElement('a');
+//     link.href = window.URL.createObjectURL(blob);
+//     link.download = 'certificado.pdf';
+//     link.click();
+//   });
+// }
+
+function downloadPDF(){
+  window.open(`http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/certificateservice/getPdf/${sessionStorage.getItem('numeroDocumento')}/1`, '_blank');
 }
