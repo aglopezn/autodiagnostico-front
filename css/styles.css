@@ -45,6 +45,11 @@ body {
 }
 
 /* FORMS */
+.form-group {
+    position: relative;
+    padding-bottom: 48px;
+}
+
 .form-control_underline {
     border-top: none;
     border-right: none;
@@ -56,16 +61,19 @@ body {
 }
 
 .form-label_animate {
-    transform: translate(12px, -150%);
+    position: absolute;
+    left: 0;
+    top: -8px;
+    /* transform: translate(12px, -150%); */
     transition: 0.5s ease;
 }
 
 .form-control:focus ~ .form-label_animate {
-    transform: translate(12px,-225%);
+    transform: translate(0,-90%);
 }
 
 .form-control:valid ~ .form-label_animate {
-    transform: translate(12px,-225%);
+    transform: translate(0,-90%);
 }
 
 /* MEDIA QUERIES */

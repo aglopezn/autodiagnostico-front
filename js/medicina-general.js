@@ -1,24 +1,17 @@
 $(document).ready(function(){
   jQuery.ajax({
-    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/questionservice/getquestion/${_OPTOMETRIA}`
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/questionservice/getquestion/${_MEDICINA_GENERAL}`
   })
   .done(function(data){
     if(data.response == 200){
       console.log(data);
-      let form = $('#form-optometria');
+      let form = $('#form-medicina-general');
       data.data.forEach(question => {
-        let opts= '<option class="bg-dark" value=""></option>';
-        question.opciones.forEach(answerOp => {
-          opts = opts + `<option class="bg-dark" value="${answerOp.idOption}">${answerOp.optionDesc}</option>`;
-        });
         let input = `<div class="form-group"> 
-          <select id="${question.idpreguntas}" class="form-control form-control_underline bg-transparent text-white shadow-none" required>
-            ${opts}
-          </select>
+          <input type="text" id="${question.idpreguntas}" class="form-control form-control_underline bg-transparent text-white shadow-none" required>
           <label for="${question.idpreguntas}" class="form-label_animate">${question.pregunta}</label>
           </div>`;
         form.append(input);
-          // <input type="text" id="${question.idpreguntas}" class="form-control form-control_underline bg-transparent text-white shadow-none" required>
       });
       let button = '<button type="submit" class="btn btn-primary btn-block">Enviar</button>';
       form.append(button);
@@ -26,7 +19,7 @@ $(document).ready(function(){
   });
 
   // Enviar las respuestas
-  $('#form-optometria').on("submit", function(e){
+  $('#form-medicina-general').on("submit", function(e){
     e.preventDefault();
     swal({
       title: 'Vamos a validar tu informacion.',
@@ -54,7 +47,7 @@ function bodyRequestAnswers(inputQuestions){
   for(let i=0; i<inputQuestions.length; i++){
     let jsonTemp = {
       user: {
-        idUser: sessionStorage.getItem('idUsuario')
+        idUser: 1
       },
       question: {
         idQuestion: parseInt(inputQuestions[i].id,10)
@@ -74,7 +67,7 @@ function bodyRequestFormState(estado){
       idUser: sessionStorage.getItem('idUsuario')
     },
     field: {
-      idField: _OPTOMETRIA
+      idField: _MEDICINA_GENERAL
     }
   };
   return json;
@@ -82,9 +75,9 @@ function bodyRequestFormState(estado){
 
 // Agregar las respuestas del examen
 function addExamAnswers(){
-  let questions = $('#form-optometria select');
+  let questions = $('#form-medicina-general input');
   let body = bodyRequestAnswers(questions);
-  // console.log(JSON.stringify(body));
+  console.log(JSON.stringify(body));
   return jQuery.ajax({
     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/answersservice/addexam`,
     contentType: "application/json",
@@ -96,7 +89,7 @@ function addExamAnswers(){
 
 // Valida que las respuestas se hayan almacenado correctamente
 function validateAnswers(response){
-    // console.log(response);
+    console.log(response);
     response.data.forEach(function(resAnswer){
       if(resAnswer.response == 500){
         throw new Error('Ocurrio un error al agregar las respuestas.');
@@ -136,7 +129,7 @@ function updateFormState(estado){
     return 'Completado con exito';
   }
   return jQuery.ajax({
-    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/${_OPTOMETRIA}`,
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/${_MEDICINA_GENERAL}`,
     contentType: "application/json",
     method: "PUT",
     crossOrigin: true,
@@ -145,7 +138,7 @@ function updateFormState(estado){
 
 // Imprime en pantalla un mensaje de exito
 function result(data){
-  // console.log(data);
+  console.log(data);
   swal({
     title: 'Informacion almacenada con exito.',
     icon: 'success',
@@ -173,5 +166,5 @@ function serviceError(data, textStatus, jqXHR){
 }
 
 function downloadPDF(){
-  window.open(`http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/certificateservice/getPdf/${sessionStorage.getItem('numeroDocumento')}/${_OPTOMETRIA}`, '_blank');
+  window.open(`http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/certificateservice/getPdf/${sessionStorage.getItem('numeroDocumento')}/${_MEDICINA_GENERAL}`, '_blank');
 }
