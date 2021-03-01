@@ -127,10 +127,10 @@ function checkAnswersSaved(response){
 
 // Evalua la respuesta de las preguntas para determinar si aprueba o no el examen
 function validateAnswers(){
-  if ($('#5').val() !== '8' && $('#6').val() == '7' && $('#7').val() == '9'){
+  if ($('#21').val() == '46' && $('#22').val() == '48' && $('#26').val() == '56'){
     return 'NO_APROBADO';
   }
-  if ($('#6').val() == '8' && $('#7').val() == '10' && $('#9').val() == '15'){
+  if ($('#20').val() == '43' && $('#21').val() == '47' && $('#22').val() == '49' && $('#23').val() == '51' && $('#25').val() == '55'){
     return 'APROBADO';
   }
   return 'PENDIENTE_CITA';
