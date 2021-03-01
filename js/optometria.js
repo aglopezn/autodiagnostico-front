@@ -37,11 +37,11 @@ $(document).ready(function(){
         closeModal: false,
       },
     })
+    .then(getFormstate)
+    .then(validateFormState)
     .then(addExamAnswers)
-    .then(validateAnswers)
+    .then(checkAnswersSaved)
     .then(setFormState)
-    .then(validateUpdate)
-    .then(updateFormState)
     .then(result)
     .catch(serviceError);
   });
@@ -80,6 +80,25 @@ function bodyRequestFormState(estado){
   return json;
 }
 
+// Obtener el estado del formulario, si existe
+function getFormstate(){
+  let idUser = sessionStorage.getItem('idUsuario');
+  return jQuery.ajax({
+    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/getformstfield/${idUser}/${_OPTOMETRIA}`,
+    contentType: "application/json",
+    method: "GET",
+    crossOrigin: true
+  });
+}
+
+// Validar el estado del formulario, solo se puede llenar una vez
+function validateFormState(response){
+  if (response.data.estado !== 'SIN_ESTADO'){
+    throw new Error('El formulario ha sido realizado previamente. Solo se puede realizar una vez.');
+  }
+  return 'OK';
+}
+
 // Agregar las respuestas del examen
 function addExamAnswers(){
   let questions = $('#form-optometria select');
@@ -91,70 +110,97 @@ function addExamAnswers(){
     method: "POST",
     crossOrigin: true,
     data: JSON.stringify(body)
-  })
+  });
 }
 
 // Valida que las respuestas se hayan almacenado correctamente
-function validateAnswers(response){
-    // console.log(response);
-    response.data.forEach(function(resAnswer){
-      if(resAnswer.response == 500){
-        throw new Error('Ocurrio un error al agregar las respuestas.');
-      }
-    });
-    return 'PENDIENTE_CERTIFICADO';
+function checkAnswersSaved(response){
+  // console.log(response);
+  response.data.forEach(function(resAnswer){
+    if(resAnswer.response == 500){
+      throw new Error('Ocurrio un error al agregar las respuestas.');
+    }
+  });
+  return validateAnswers();
+}
+
+
+// Evalua la respuesta de las preguntas para determinar si aprueba o no el examen
+function validateAnswers(){
+  if ($('#5').val() !== '8' && $('#6').val() == '7' && $('#7').val() == '9'){
+    return 'NO_APROBADO';
+  }
+  if ($('#6').val() == '8' && $('#7').val() == '10' && $('#9').val() == '15'){
+    return 'APROBADO';
+  }
+  return 'PENDIENTE_CITA';
+
 }
 
 // Funcion que realiza la peticion para crear el estado del formulario
 function setFormState(estado){
   let body = bodyRequestFormState(estado);
   console.log(JSON.stringify(body));
-  return jQuery.ajax({
+  jQuery.ajax({
     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/setstate`,
     contentType: "application/json",
     method: "POST",
     crossOrigin: true,
     data: JSON.stringify(body)
-  })
+  });
+  return estado;
 }
 
-// Funcion para validar si se debe actualizar el estado del formulario
-function validateUpdate(response){
-  console.log(response);
-  if(response.response == 400){
-    return 'PENDIENTE_CERTIFICADO';
-  } 
-  if(response.response == 200){
-    return '200';
+// Imprime en pantalla el resultado del examen
+function result(estado){
+  if (estado === 'NO_APROBADO'){
+    notApprovedModal();
   }
-
-}
-// Funcion que realiza la peticion para actualizar el estado del formulario
-function updateFormState(estado){
-  console.log(estado);
-  if(estado == '200'){
-    return 'Completado con exito';
+  if (estado === 'APROBADO'){
+    approvedModal();
   }
-  return jQuery.ajax({
-    url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/updatestate/${sessionStorage.getItem('idUsuario')}/${estado}/${_OPTOMETRIA}`,
-    contentType: "application/json",
-    method: "PUT",
-    crossOrigin: true,
-  })
+  if (estado === 'PENDIENTE_CITA'){
+    appointmentModal();
+  }
+  
 }
 
-// Imprime en pantalla un mensaje de exito
-function result(data){
-  // console.log(data);
+// Modal no aprobado
+function notApprovedModal(){
   swal({
-    title: 'Informacion almacenada con exito.',
+    title: 'No has aprobado el examen.',
+    text: 'Contacta a tu empresa para más información.',
+    icon: 'warning',
+    button: 'Aceptar'
+  })
+  .then(function(){
+    window.location.href = `http://${_LOCAL_DOMAIN}/modulo-examenes.html`;
+  })
+}
+
+// Modal aprobado
+function approvedModal(){
+  swal({
+    title: '¡Has aprobado el examen!',
+    text: 'Descarga ahora tu certificado.',
     icon: 'success',
     button: 'Descargar certificado'
-    //buttons: false,
-    //timer: 2000
   })
   .then(function(){
     downloadPDF();
+    window.location.href = `http://${_LOCAL_DOMAIN}/modulo-examenes.html`;
+  })
+}
+
+// Modal cita médica
+function appointmentModal(){
+  swal({
+    title: 'Debes agendar una cita médica.',
+    text: 'Es necesario una valoración adicional. Solicita una cita médica al numero 555-1234',
+    icon: 'info',
+    button: 'Aceptar'
+  })
+  .then(function(){
     window.location.href = `http://${_LOCAL_DOMAIN}/modulo-examenes.html`;
   })
 }
@@ -172,6 +218,7 @@ function serviceError(data, textStatus, jqXHR){
   })
 }
 
+// Descargar certificado
 function downloadPDF(){
   window.open(`http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/certificateservice/getPdf/${sessionStorage.getItem('numeroDocumento')}/${_OPTOMETRIA}`, '_blank');
 }

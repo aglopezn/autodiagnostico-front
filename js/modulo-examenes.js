@@ -1,6 +1,7 @@
 $(document).ready(function(){  
   getUser() // Buscar idUsuario
     .then(saveUser) // Cargar el id del usuario
+    .then(setGreeting) // Carga el saludo para el usuario
     .then(getFormState) // Buscar estado de los formularios
     .then(validateExams); // Deshabilitar formularios realizados
 });
@@ -20,6 +21,11 @@ function saveUser(data){
   return true;
 }
 
+function setGreeting(){
+  $('#greeting').append(`Bienvenido, ${sessionStorage.getItem('nombre')}`);
+  return true;
+}
+
 function getFormState(){
   return jQuery.ajax({
     url: `http://${_DOMAIN_SERVICES}/autodiagnostico-rest-services/formstservice/getformst/${sessionStorage.getItem('idUsuario')}`,
@@ -31,7 +37,7 @@ function getFormState(){
 function validateExams(data){
   console.log(data);
   data.data.forEach(function(examen){
-    if(examen.estado === "PENDIENTE_CERTIFICADO"){
+    if(examen.estado !== null){
       $(`#especialidad_${examen.idespecialidad}`).addClass('disabled');
     }
   });
